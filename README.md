@@ -6,25 +6,25 @@ Simple load test or benchmark tool for Socket.IO server.
 Installation
 ------------
 
-  $ npm install -g siob
+    $ npm install -g siob
 
 Usage
 -----
 
-  Usage: siob [options]
+    Usage: siob [options]
 
-  Options:
+    Options:
 
-    -h, --help                       output usage information
-    -v, --version                    output the version number
-    -t, --times <requests>           number of requests to perform. If not set this value, run forever
-    -c, --connections <connections>  number of multiple connections to make, default value is 100
-    -i, --interval <interval>        request inteval time, unit is milisecouns, default value is 1000
-    -u, --url <url>                  url to test Socket.IO server
-    -e, --event <event>              event name to test, default value is "message"
-    -r, --receiveEvent <event>       recieve event name to test, default value is same as event option
-    -d, --data <data>                test data to send test server, default value is "{}"
-    -V, --verbose                    output detail log
+      -h, --help                       output usage information
+      -v, --version                    output the version number
+      -t, --times <requests>           number of requests to perform. If not set this value, run forever
+      -c, --connections <connections>  number of multiple connections to make, default value is 100
+      -i, --interval <interval>        request inteval time, unit is milisecouns, default value is 1000
+      -u, --url <url>                  url to test Socket.IO server
+      -e, --event <event>              event name to test, default value is "message"
+      -r, --receiveEvent <event>       recieve event name to test, default value is same as event option
+      -d, --data <data>                test data to send test server, default value is "{}"
+      -V, --verbose                    output detail log
 
 License
 -------
