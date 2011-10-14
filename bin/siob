@@ -1,0 +1,136 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var program = require('commander')
+  , client = require('socket.io-client')
+  , async = require('async')
+;
+
+var verbose = false
+
+// Functions
+function debug(msg) {
+  if (verbose) {
+    console.log(msg);
+  }
+}
+
+function connect(url, connections, callback) {
+  console.log('Connect to %s (%d connections)', url, connections);
+  var clients = []
+    , inits = [];
+
+  for (var i = 0; i < connections; ++i) {
+    inits.push(function(next) {
+      var con = client.connect(url, { 'force new connection': true });
+      con.on('connect', function() {
+        debug('connected sessionid=' + con.socket.sessionid);
+        clients.push(con);
+        next();
+     });
+    });
+  }
+
+  async.parallel(inits, function(err) {
+      if (err) {
+        console.log(err);
+        process.exit(1);
+      }
+      console.log('conection setup completed');
+      callback(clients);
+    }
+  );
+}
+
+function disconnect(clients) {
+  for (var i = 0, l = clients.length; i < l; ++i) {
+    var c = clients[i];
+    debug('disconnect sessionid=' + c.socket.sessionid);
+    c.disconnect();
+  }
+}
+
+function run(clients, sendEvent, receiveEvent, data, callback) {
+  async.forEach(clients, function(client, next) {
+    client.once(receiveEvent, function(ret) {
+      debug('Response of ' + receiveEvent + ': ' + JSON.stringify(ret));
+      next();
+    });
+    client.emit(sendEvent, JSON.parse(data));
+  }, callback);
+}
+
+// CLI
+var argv = process.argv;
+if (argv.length <= 2) {
+  argv.push('-h');
+}
+
+program
+  .version('0.0.1')
+  .option('-t, --times <requests>', 'number of requests to perform. If not set this value, run forever', Number)
+  .option('-c, --connections <connections>', 'number of multiple connections to make, default value is 100', Number, 100)
+  .option('-i, --interval <interval>', 'request inteval time, unit is milisecouns, default value is 1000', Number, 1000)
+  .option('-u, --url <url>', 'url to test Socket.IO server')
+  .option('-e, --event <event>', 'event name to test, default value is "message"', 'message')
+  .option('-r, --receiveEvent <event>', 'recieve event name to test, default value is same as event option')
+  .option('-d, --data <data>', 'test data to send test server, default value is "{}"', '{}')
+  .option('-V, --verbose', 'output detail log')
+  .parse(argv);
+
+if (!program.url) {
+  console.log('url must be specified, using -u or --url option.');
+  process.exit(1);
+}
+
+if (!program.receiveEvent) {
+  program.receiveEvent = program.event;
+}
+
+if (program.verbose) {
+  verbose = true;
+}
+
+connect(program.url, program.connections, function(clients) {
+  var cycle = 0
+    , t0 = Date.now()
+    , prev = t0
+    , total = 0
+    , timer;
+
+  process.on('exit', function () {
+    clearTimeout(timer);
+    disconnect(clients);
+  });
+
+  console.log('emit("%s", %s), receive event is "%s"', program.event, program.data, program.receiveEvent);
+  function mainLoop() {
+    prev = Date.now();
+    run(clients, program.event, program.receiveEvent, program.data, function(err) {
+      if (err) {
+        console.log(err);
+        process.exit(1);
+      }
+
+      var elapsed = Date.now() - prev;
+      total += elapsed;
+
+      cycle++;
+      console.log('%d cycle complete (%d ms)', cycle, elapsed);
+      if (program.times) {
+        if (cycle >= program.times) {
+          console.log('');
+          console.log('emit("%s", %s), receive event is "%s"', program.event, program.data, program.receiveEvent);
+          console.log('Response time average is %d ms', total / cycle);
+          process.exit();
+        }
+      }
+      timer = setTimeout(mainLoop, program.interval);
+    })
+  }
+
+  mainLoop();
+});
