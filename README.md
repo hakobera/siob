@@ -1,7 +1,7 @@
 siob
 ====
 
-Simple load test tool for Socket.IO server.
+Simple load test or benchmark tool for Socket.IO server.
 
 Installation
 ------------
