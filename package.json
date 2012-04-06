@@ -1,14 +1,14 @@
 {
 	  "name": "siob"
-  , "version": "0.0.1"
+  , "version": "0.1.0"
   , "description": "Socket.IO load test tool"
   , "keywords": [ "Socket.IO" ]
   , "author": "Kazuyuki Honda <hakobera@gmail.com>"
   , "repository": { "type": "git", "url": "https://github.com/hakobera/siob.git" }
   , "dependencies": {
-      "socket.io-client": "0.8.5"
-    , "commander": "0.2.0"
-    , "async": "0.1.10"
+      "socket.io-client": "0.9.4"
+    , "commander": ">= 0.2.0"
+    , "async": ">= 0.1.10"
 	  }
   , "bin": { "siob": "./bin/siob" }
   , "engines": { "node": "0.4.x" }

@@ -35,14 +35,13 @@ function connect(url, connections, callback) {
   }
 
   async.parallel(inits, function(err) {
-      if (err) {
-        console.log(err);
-        process.exit(1);
-      }
-      console.log('conection setup completed');
-      callback(clients);
+    if (err) {
+      console.log(err);
+      process.exit(1);
     }
-  );
+    console.log('conection setup completed');
+    callback(clients);
+  });
 }
 
 function disconnect(clients) {
@@ -70,7 +69,7 @@ if (argv.length <= 2) {
 }
 
 program
-  .version('0.0.1')
+  .version('0.1.0')
   .option('-t, --times <requests>', 'number of requests to perform. If not set this value, run forever', Number)
   .option('-c, --connections <connections>', 'number of multiple connections to make, default value is 100', Number, 100)
   .option('-i, --interval <interval>', 'request inteval time, unit is milisecouns, default value is 1000', Number, 1000)
